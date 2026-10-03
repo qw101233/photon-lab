@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  width:1080px;height:1920px;overflow:hidden;
+  font-family:"PingFang SC","Microsoft YaHei","Segoe UI",-apple-system,sans-serif;
+  background:radial-gradient(900px 700px at 20% -8%, #16294a 0%, #0a1120 45%, #05070f 100%);
+  color:#e8f0fb;position:relative;
+}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.30;pointer-events:none}
+.g1{width:820px;height:820px;background:#1e5fa8;top:-240px;left:-260px}
+.g2{width:700px;height:700px;background:#7b3fa0;bottom:-200px;right:-240px}
+.wrap{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;
+  padding:96px 76px 84px}
+.kicker{display:flex;align-items:center;gap:16px;font-size:26px;letter-spacing:6px;
+  color:#6fa8e0;font-weight:600}
+.kicker .bar{width:56px;height:5px;background:linear-gradient(90deg,#4ea3ff,#7ee0c0);
+  border-radius:3px}
+h1{font-size:96px;line-height:1.14;font-weight:800;letter-spacing:-1px;margin-top:26px}
+h1 em{font-style:normal;background:linear-gradient(100deg,#6fc3ff,#8affd8);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:34px;line-height:1.6;color:#9fb6d4;margin-top:22px}
+.body{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;gap:24px;padding:18px 0}
+/* 图片框：不裁切、不拉伸，按原比例居中。
+ * 【踩坑】先后试过 object-fit:cover（裁掉屏）、contain（上下黑边）——
+ * 竖屏 9:16 里横图只能二选一，都难看。
+ * 正解：图片框给固定高度（不是 flex:1），图按 contain 居中，
+ * 剩余空间由文字块自然填充，视觉上更平衡。 */
+.grow{border-radius:24px;overflow:hidden;height:560px;
+  border:1px solid rgba(110,160,220,.26);box-shadow:0 26px 70px rgba(0,0,0,.62);
+  display:flex;align-items:center;justify-content:center;background:#070b14}
+.grow img{width:100%;height:100%;object-fit:contain;display:block}
+.grow.tall{height:900px}
+.pair{display:flex;gap:26px;align-items:stretch}
+.sq{flex:0 0 300px;height:400px;border-radius:20px;overflow:hidden;
+  border:1px solid rgba(110,160,220,.26);background:#070b14}
+.sq img{width:100%;height:100%;object-fit:cover;display:block}
+.side{flex:1;display:flex;align-items:center}
+.duo{display:flex;gap:20px;height:600px}
+.duo>div{border-radius:22px;overflow:hidden;border:1px solid rgba(110,160,220,.26);
+  box-shadow:0 22px 60px rgba(0,0,0,.6);background:#070b14}
+.duo-a{flex:1.55}
+.duo-b{flex:1}
+.duo img{width:100%;height:100%;object-fit:cover;display:block}
+.labels{display:flex;gap:20px;font-size:24px;color:#5f7799}
+.labels span{flex:1.55;text-align:center}
+.labels span+span{flex:1}
+.flow{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.fnode{flex:1;background:rgba(20,32,56,.7);border:1px solid rgba(110,160,220,.24);
+  border-radius:16px;padding:18px 8px;text-align:center;font-size:25px;font-weight:600}
+.fnode span{display:block;font-size:20px;color:#6f8fb4;font-weight:400;margin-top:6px}
+.fnode.hi{border-color:rgba(78,163,255,.5);color:#9fd0ff;
+  box-shadow:0 0 24px rgba(78,163,255,.16)}
+.farrow{color:#4a6284;font-size:26px;flex:0 0 auto}
+.card{background:rgba(20,32,56,.62);border:1px solid rgba(110,160,220,.22);
+  border-radius:26px;padding:38px 40px}
+.card h3{font-size:30px;color:#7ee0c0;font-weight:700;margin-bottom:16px;
+  display:flex;align-items:center;gap:14px}
+.card h3::before{content:'';width:8px;height:30px;background:#7ee0c0;border-radius:4px}
+.card p{font-size:29px;line-height:1.72;color:#c3d4e8}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.eq{background:rgba(10,18,32,.85);border:1px solid rgba(110,160,220,.18);
+  border-radius:18px;padding:26px 30px;font-size:30px;color:#ffd98a;
+  text-align:center;letter-spacing:1px}
+.foot{font-size:26px;color:#5f7799;display:flex;justify-content:space-between;
+  align-items:center;padding-top:30px;border-top:1px solid rgba(110,160,220,.14)}
+.shotwrap{border-radius:24px;overflow:hidden;border:1px solid rgba(110,160,220,.26);
+  box-shadow:0 26px 70px rgba(0,0,0,.62)}
+.shotwrap img{width:100%;display:block}
+.shotwrap.ratio img{aspect-ratio:16/10;object-fit:cover}
+.hero{margin:26px -20px 0}
+.hero img{width:calc(100% + 40px);display:block}
+.cap{font-size:25px;color:#8fa6c4;margin-top:16px;text-align:center;line-height:1.5}
+.num{position:absolute;top:64px;right:76px;font-size:26px;color:#4a6284;
+  font-family:ui-monospace,monospace}
+ul{list-style:none}
+li{font-size:29px;line-height:1.7;color:#c3d4e8;padding-left:38px;position:relative;margin-bottom:12px}
+li::before{content:'▸';position:absolute;left:0;color:#4ea3ff}
+.tag{display:inline-block;padding:8px 20px;border-radius:999px;font-size:24px;
+  background:rgba(78,163,255,.16);border:1px solid rgba(78,163,255,.36);color:#9fd0ff;
+  margin-right:12px}
+</style></head><body>
+<div class="glow g1"></div><div class="glow g2"></div>
+<div class="num">01 / 07</div>
+<div class="wrap">
+  <div class="kicker"><span class="bar"></span>PHOTONLAB</div>
+  <h1>把<em>光的本性</em><br>算给你看</h1>
+  <p class="sub">二维光学实验室 · 几何追迹 × 波动干涉</p>
+  <div class="body">
+    <div class="duo">
+      <div class="duo-a"><img src="../shots/demo-dslit.png"></div>
+      <div class="duo-b"><img src="../shots/screen-dslit.png"></div>
+    </div>
+    <div class="labels"><span>双缝装置</span><span>屏幕特写</span></div>
+    <p class="cap" style="font-size:28px">白光穿过双缝 —— 屏幕上自己长出的彩色条纹<br>
+      <span style="color:#5f7799">条纹不是画上去的，是复振幅叠加算出来的</span></p>
+    <div class="card" style="padding:30px 34px">
+      <p style="font-size:27px">10 个实验场景 · 52 项物理验证全通过<br>
+      与解析闭式解的相关系数 <b style="color:#7ee0c0">0.99991</b></p>
+    </div>
+  </div>
+  <div class="foot"><span>零依赖 · 单页应用</span><span>10 个实验场景</span></div>
+</div></body></html>

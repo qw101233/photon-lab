@@ -1,0 +1,17 @@
+# 依赖
+node_modules/
+package-lock.json
+
+# 临时/调试产物
+# 说明：shots/ 里只保留 README 与图文引用的图片；
+# verify.js 与 qc.js 每次运行会重新生成 scene-*.png 与 screen-*.png，
+# 这些是可再生的中间产物，不入库（详见 README「项目结构」）。
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# 日志
+*.log

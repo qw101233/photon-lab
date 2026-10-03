@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PhotonLab · 光学实验室</title>
+<style>
+  :root{
+    --bg:#070b14; --bg2:#0b1120; --panel:#0f1728; --line:#1d2942;
+    --txt:#dbe6f7; --dim:#8397b5; --acc:#4ea3ff; --acc2:#7ee0c0;
+    --warn:#ffb454;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    background:radial-gradient(1200px 700px at 22% -10%,#12203a 0%,var(--bg) 58%);
+    color:var(--txt);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:flex;flex-direction:column;min-height:100vh}
+
+  /* 顶栏 */
+  header{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding:12px 20px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(12,20,36,.92),rgba(8,13,24,.75));
+    position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand h1{margin:0;font-size:19px;letter-spacing:.3px;font-weight:650}
+  .brand .sub{color:var(--dim);font-size:12px}
+  .hud{margin-left:auto;display:flex;gap:14px;align-items:center;color:var(--dim);font-size:12px}
+  .hud b{color:var(--acc2);font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* 场景按钮条 */
+  #sceneBar{
+    display:flex;gap:7px;padding:10px 20px;overflow-x:auto;
+    border-bottom:1px solid var(--line);background:rgba(9,14,26,.6);
+  }
+  #sceneBar::-webkit-scrollbar{height:5px}
+  #sceneBar::-webkit-scrollbar-thumb{background:#243a5c;border-radius:3px}
+  .sc-b{
+    flex:0 0 auto;padding:6px 13px;border-radius:999px;cursor:pointer;
+    background:#101a2e;color:var(--dim);border:1px solid var(--line);
+    font-size:12.5px;white-space:nowrap;transition:.14s;
+  }
+  .sc-b:hover{background:#16233d;color:var(--txt);border-color:#2b3d5e}
+  .sc-b.on{background:linear-gradient(180deg,#2b6fc4,#215a9f);color:#fff;border-color:#3d84d8}
+
+  /* 主体 */
+  main{flex:1;display:grid;grid-template-columns:1fr 320px;gap:0;align-items:start}
+  @media(max-width:980px){ main{grid-template-columns:1fr} }
+
+  #canvasWrap{padding:16px 20px 8px}
+  #scene{
+    display:block;width:100%;border-radius:12px;
+    border:1px solid var(--line);
+    box-shadow:0 18px 46px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.02);
+    background:#050810;
+  }
+  .hint{color:var(--dim);font-size:12px;padding:8px 2px 0}
+  .hint kbd{
+    background:#16233d;border:1px solid #2b3d5e;border-bottom-width:2px;
+    border-radius:4px;padding:0 5px;font-size:11px;color:#a9c0dd;
+  }
+
+  /* 侧栏 */
+  aside{
+    padding:16px 18px 28px;border-left:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(11,17,32,.7),rgba(7,11,20,.7));
+    position:sticky;top:96px;max-height:calc(100vh - 96px);overflow-y:auto;
+  }
+  @media(max-width:980px){ aside{border-left:none;border-top:1px solid var(--line);position:static;max-height:none} }
+  aside h2{margin:0 0 3px;font-size:17px;font-weight:640}
+  #scTag{margin:0 0 14px;color:var(--acc);font-size:12.5px}
+  .box{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:11px 13px;margin-bottom:12px;
+  }
+  .box h3{
+    margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.9px;
+    color:var(--dim);text-transform:uppercase;
+  }
+  .box p{margin:0;font-size:12.8px;line-height:1.72;color:#b9cbe4}
+  .box.exp h3{color:var(--acc2)}
+  .box.exp p{color:#9fe8d0}
+
+  /* 控件 */
+  .ctl{margin-bottom:13px}
+  .ctl-row{margin-bottom:8px}
+  .ctl-l{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:12px;color:var(--dim);margin-bottom:5px;
+  }
+  .ctl-v{
+    color:var(--acc2);font-variant-numeric:tabular-nums;
+    font-size:11.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  .seg{display:flex;gap:0;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .seg-b{
+    flex:1;padding:6px 4px;background:#101a2e;color:var(--dim);
+    border:none;cursor:pointer;font-size:12.3px;transition:.13s;
+  }
+  .seg-b+.seg-b{border-left:1px solid var(--line)}
+  .seg-b:hover{background:#16233d;color:var(--txt)}
+  .seg-b.on{background:linear-gradient(180deg,#2b6fc4,#215a9f);color:#fff}
+  .rng{
+    -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;
+    background:linear-gradient(90deg,#243c60,#2f4f7d);outline:none;cursor:pointer;
+  }
+  .rng::-webkit-slider-thumb{
+    -webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+    background:linear-gradient(180deg,#8fc4ff,#3d84d8);
+    border:2px solid #0b1120;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.5);
+  }
+  .rng::-moz-range-thumb{
+    width:13px;height:13px;border-radius:50%;background:#5ea3f0;
+    border:2px solid #0b1120;cursor:pointer;
+  }
+  .tgl{
+    width:100%;padding:7px 10px;text-align:left;cursor:pointer;font-size:12.5px;
+    background:#101a2e;color:var(--dim);border:1px solid var(--line);border-radius:7px;
+    transition:.13s;position:relative;
+  }
+  .tgl::before{content:'○';margin-right:7px;font-size:11px}
+  .tgl.on{color:var(--acc2);border-color:#26566f;background:#0e2029}
+  .tgl.on::before{content:'●';color:var(--acc2)}
+  .tgl:hover{background:#16233d;color:var(--txt)}
+
+  footer{
+    padding:12px 20px 22px;color:var(--dim);font-size:11.5px;
+    border-top:1px solid var(--line);text-align:center;
+  }
+  footer code{background:#101a2e;padding:1px 5px;border-radius:4px;color:#a9c0dd;font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <h1>PhotonLab</h1>
+      <span class="sub">二维光学实验室 · 几何追迹 × 波动干涉</span>
+    </div>
+    <div class="hud">
+      <span>渲染 <b id="fps">—</b></span>
+    </div>
+  </header>
+
+  <div id="sceneBar"></div>
+
+  <main>
+    <section id="canvasWrap">
+      <canvas id="scene"></canvas>
+      <p class="hint">
+        拖拽元件可移动 · 滚轮可旋转 · 切换场景看不同现象 ·
+        条纹与光谱由 <code>惠更斯-菲涅尔叠加</code> 实时求解，不是贴图
+      </p>
+    </section>
+
+    <aside>
+      <h2 id="scTitle">—</h2>
+      <p id="scTag">—</p>
+
+      <div class="box">
+        <h3>物理原理</h3>
+        <p id="scPhysics">—</p>
+      </div>
+      <div class="box exp">
+        <h3>预期现象</h3>
+        <p id="scExpect">—</p>
+      </div>
+
+      <div class="box">
+        <h3>参数</h3>
+        <div id="controls"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    零依赖单页应用 · 全部现象由 Snell 定律 / Fresnel 系数 / Cauchy 色散 / 惠更斯-菲涅尔积分实时求解
+  </footer>
+</div>
+
+<script type="module" src="./src/app.js"></script>
+</body>
+</html>
